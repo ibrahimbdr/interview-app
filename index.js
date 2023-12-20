@@ -2,16 +2,11 @@ require('dotenv').config()
 var express = require('express');
 var jwt = require('jsonwebtoken');
 var uuid4 = require('uuid4');
+var cors = require('cors');
 var app = express();
 app.use(express.json());
 
-app.use(function(req, res, next) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-    res.setHeader('Access-Control-Allow-Credentials', true);
-    next();
-});
+app.use(cors());
 
 app.post('/generateManagementToken', function(req, res) {
     var app_access_key = process.env.APP_ACCESS_KEY;

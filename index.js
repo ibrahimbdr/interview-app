@@ -8,7 +8,7 @@ app.use(express.json());
 
 app.use(cors());
 
-app.post('/generateManagementToken', function(req, res) {
+app.get('/generateManagementToken', function(req, res) {
     var app_access_key = process.env.APP_ACCESS_KEY;
     var app_secret = process.env.APP_SECRET;
     var payload = {

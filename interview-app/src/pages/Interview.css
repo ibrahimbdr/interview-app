@@ -1,0 +1,35 @@
+.container {
+    display: flex;
+    flex-direction: row;
+  }
+  
+  .timer, .recorder, .questions {
+    width: 33%;
+    padding: 16px;
+  }
+  
+  .button {
+    background-color: #4299E1;
+    color: white;
+    font-weight: bold;
+    padding: 8px 16px;
+    border-radius: 4px;
+  }
+  
+  .button:hover {
+    background-color: #2B6CB0;
+  }
+  
+  .question {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px 16px;
+    color: #4A5568;
+  }
+  
+  .question:hover {
+    background-color: #4299E1;
+    color: white;
+  }
+  

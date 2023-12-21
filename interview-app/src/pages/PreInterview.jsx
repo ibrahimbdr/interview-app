@@ -1,5 +1,4 @@
 import { useRef, useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import Webcam from 'react-webcam';
 import RecordRTC from 'recordrtc';
 import {
@@ -7,7 +6,6 @@ import {
   useHMSActions,
   useHMSStore
 } from "@100mslive/react-sdk";
-import DeviceSettings from '../components/DeviceSettings';
 import Interview from './Interview';
 
 const PreInterview = () => {
@@ -20,6 +18,7 @@ const PreInterview = () => {
   // eslint-disable-next-line no-unused-vars
   const [roomData, setRoomData] = useState(null);
   const [roomCode, setRoomCode] = useState(null);
+  const [recordingStatus, setRecordingStatus] = useState('not started');
 
   const fetchManagementToken = async () => {
     const response = await fetch(`${import.meta.env.VITE_SERVER_API}/generateManagementToken`, {
@@ -92,6 +91,7 @@ const PreInterview = () => {
   
 
   const handleStartCapture = () => {
+    setRecordingStatus('start')
     const stream = webcamRef.current.stream;
     const options = { type: 'video' };
     const recordRTC = RecordRTC(stream, options);
@@ -100,14 +100,17 @@ const PreInterview = () => {
   };
 
   const handleStopCapture = () => {
+    setRecordingStatus('stopping')
     recorder.stopRecording(() => {
       let blob = recorder.getBlob();
       setRecordedBlob(URL.createObjectURL(blob));
+      setRecordingStatus('stopped')
     });
   };
 
   const handleStartInterview = async () => {
-    const authToken = await hmsActions.getAuthTokenByRoomCode({ roomCode: roomCode.data[0].code })
+    console.log();
+    const authToken = await hmsActions.getAuthTokenByRoomCode({ roomCode: roomCode.data[2].code })
 
     try {
       await hmsActions.join({ userName: roomData.name, authToken });
@@ -126,25 +129,29 @@ const PreInterview = () => {
 
 
   return (
-    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', backgroundColor: '#F7FAFC'}}>
-      <Webcam muted audio={true} ref={webcamRef} style={{width: '16rem', height: '12rem', margin: '1rem', borderRadius: '0.375rem', boxShadow: '0 1px 3px 0 #1A202C'}} />
-      <div>
-        <button onClick={handleStartCapture} style={{padding: '0.5rem 1rem', margin: '0.5rem', color: '#FFFFFF', backgroundColor: '#4299E1', borderRadius: '0.375rem', boxShadow: '0 1px 3px 0 #1A202C'}}>Start Recording</button>
-        <button onClick={handleStopCapture} style={{padding: '0.5rem 1rem', margin: '0.5rem', color: '#FFFFFF', backgroundColor: '#FC8181', borderRadius: '0.375rem', boxShadow: '0 1px 3px 0 #1A202C'}}>Stop Recording</button>
-      </div>
-      {recordedBlob && (
-        <video src={recordedBlob} controls style={{width: '16rem', height: '12rem', margin: '1rem', borderRadius: '0.375rem', boxShadow: '0 1px 3px 0 #1A202C'}} />
-      )}
-      <div>
-        <Link to={`/interview/${token}`} style={{padding: '0.5rem 1rem', margin: '0.5rem', color: '#FFFFFF', backgroundColor: '#4299E1', borderRadius: '0.375rem', boxShadow: '0 1px 3px 0 #1A202C'}}>Go To Interview</Link>
-      </div>
-      <div>
-        <button onClick={handleStartInterview} style={{padding: '0.5rem 1rem', margin: '0.5rem', color: '#FFFFFF', backgroundColor: '#4299E1', borderRadius: '0.375rem', boxShadow: '0 1px 3px 0 #1A202C'}}>Go To Interview</button>
-      </div>
-      <div>
-        <DeviceSettings />
-      </div>
-    </div>
+    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', backgroundColor: '#F7FAFC', padding: '1rem'}}>
+  <h2 style={{color: '#2D3748', fontSize: '2rem', fontWeight: 'bold'}}>Test Your Camera and Mic before start...</h2>
+  {
+    recordedBlob ? (
+      <video src={recordedBlob} controls style={{width: '640px', height: '480px', margin: '1rem', borderRadius: '0.375rem', boxShadow: '0 2px 4px 0 rgba(0,0,0,0.1)', border: '1px solid #E2E8F0'}} />
+    )
+    :
+    <Webcam muted audio={true} ref={webcamRef} style={{width: '640px', height: '480px', margin: '1rem', borderRadius: '0.375rem', boxShadow: '0 2px 4px 0 rgba(0,0,0,0.1)', border: '1px solid #E2E8F0'}} />
+  }
+  <div>
+    {
+      recordingStatus === 'not started' ?
+      (<button onClick={handleStartCapture} style={{padding: '0.5rem 1rem', margin: '0.5rem', color: '#FFFFFF', backgroundColor: '#48BB78', borderRadius: '0.375rem', boxShadow: '0 2px 4px 0 rgba(0,0,0,0.1)', cursor: 'pointer', border: 'none', fontWeight: 'bold'}}>Test</button>)
+      : recordingStatus === 'start' ?
+      (<button onClick={handleStopCapture} style={{padding: '0.5rem 1rem', margin: '0.5rem', color: '#FFFFFF', backgroundColor: '#E53E3E', borderRadius: '0.375rem', boxShadow: '0 2px 4px 0 rgba(0,0,0,0.1)', cursor: 'pointer', border: 'none', fontWeight: 'bold'}}>Stop Recording</button>)
+      : recordingStatus === 'stopping' ?
+      (<span style={{padding: '0.5rem 1rem', margin: '0.5rem', color: '#FFFFFF', backgroundColor: '#E53E3E', borderRadius: '0.375rem', boxShadow: '0 2px 4px 0 rgba(0,0,0,0.1)', border: 'none', fontWeight: 'bold'}}>Stopping</span>)
+      :
+      (<button onClick={handleStartInterview} style={{padding: '0.5rem 1rem', margin: '0.5rem', color: '#FFFFFF', backgroundColor: '#48BB78', borderRadius: '0.375rem', boxShadow: '0 2px 4px 0 rgba(0,0,0,0.1)', cursor: 'pointer', border: 'none', fontWeight: 'bold'}}>Go To Interview</button>)
+    }
+  </div>
+</div>
+
   );
 };
 

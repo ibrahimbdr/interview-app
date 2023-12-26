@@ -1,6 +1,7 @@
 require('dotenv').config()
 var express = require('express');
 const admin = require('firebase-admin');
+const mongoose = require("mongoose");
 var jwt = require('jsonwebtoken');
 var uuid4 = require('uuid4');
 var cors = require('cors');
@@ -17,6 +18,25 @@ admin.initializeApp({
 });
 
 const bucket = admin.storage().bucket()
+
+const databaseURL = "mongodb+srv://ibrahim:KhMDhZJu5xbBhVIV@cluster0.41pcn2k.mongodb.net/interview-app?retryWrites=true&w=majority"
+
+mongoose.connect(databaseURL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+const db = mongoose.connection;
+db.on("error", (error) => console.error(error));
+db.once("open", () => console.log("Connected to database"));
+
+const logsSchema = new mongoose.Schema({
+    logs: {
+        type: Object
+      },
+})
+
+const Logs = mongoose.model("Logs", logsSchema);
 
 app.get('/generateManagementToken', function(req, res) {
     var app_access_key = process.env.APP_ACCESS_KEY;
@@ -47,9 +67,11 @@ app.get('/generateManagementToken', function(req, res) {
     );
 });
 
-app.post('/generateStreamingLogs', (req, res) => {
+app.post('/generateStreamingLogs', async (req, res) => {
     const data = req.body;
 
+    const log = new Logs(data);
+    await Logs.save();
     const logData = JSON.stringify(data);
 
     const blob = bucket.file('logs.txt');

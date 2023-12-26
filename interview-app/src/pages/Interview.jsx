@@ -4,8 +4,7 @@ import './Interview.css';
 import { useHMSActions } from "@100mslive/react-sdk";
 import Webcam from 'react-webcam';
 
-const Interview = ({room_id, role, management_token}) => {
-console.log(role);
+const Interview = () => {
   const [questionIndex, setQuestionIndex] = useState(0);
   const questions = ['Tell me about yourself.']; 
   const hmsActions = useHMSActions();
@@ -26,7 +25,7 @@ console.log(role);
         <Timer />
       </div>
       <div style={{width: '70%'}}>
-        <VideoRecorder room_id={room_id} role={role} management_token={management_token} />
+        <VideoRecorder  />
         <div>
           <p style={{textAlign: 'center', backgroundColor: 'rgb(245, 245, 245)', padding: '1rem', fontFamily: 'monospace', fontSize: '1rem'}}>{questions[questionIndex]}</p>
           <div style={{textAlign: 'end'}}>

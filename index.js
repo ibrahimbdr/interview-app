@@ -59,30 +59,22 @@ app.get('/generateManagementToken', function(req, res) {
     );
 });
 
-const logSchema = new mongoose.Schema({
-    log: String,
-    timestamp: Date
-  });
-  
-  const Log = mongoose.model("Log", logSchema);
-  
-  app.post('/generateStreamingLogs', async (req, res) => {
-    const log = req.body.log;
-  
-    const logDocument = new Log({
-      log: log,
-      timestamp: new Date()
-    });
-  
-    try {
-      await logDocument.save();
-      res.status(200).send('Log saved successfully');
-    } catch (error) {
-      console.error(error);
-      res.status(500).send('Failed to save log');
-    }
-  });
-  
+const logSchema = new mongoose.Schema({}, { strict: false });
+
+const Log = mongoose.model("Log", logSchema);
+
+app.post('/generateStreamingLogs', async (req, res) => {
+  const logDocument = new Log(req.body);
+
+  try {
+    await logDocument.save();
+    res.status(200).send('Log saved successfully');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Failed to save log');
+  }
+});
+
 
 const port = process.env.PORT || 4242;
 app.listen(port, () => {

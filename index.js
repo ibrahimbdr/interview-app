@@ -27,9 +27,7 @@ const bucket = admin.storage().bucket()
 
 const databaseURL = "mongodb+srv://ibrahim:KhMDhZJu5xbBhVIV@cluster0.41pcn2k.mongodb.net/interview-app?retryWrites=true&w=majority"
 
-mongoose.connect(databaseURL, {
-  useNewUrlParser: true,
-});
+mongoose.connect(databaseURL);
 
 const db = mongoose.connection;
 db.on("error", (error) => console.error(error));

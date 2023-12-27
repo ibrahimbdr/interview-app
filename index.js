@@ -69,11 +69,11 @@ app.get('/generateManagementToken', function(req, res) {
 
 app.post('/generateStreamingLogs', async (req, res) => {
     const data = req.body;
-
-    const log = new Logs({ logs: data });
+    const log = new Logs({ logs: "recieved" });
     await log.save(); // Corrected to save the log
-
+    
     const logData = JSON.stringify(data);
+    console.log(logData);
 
     const blob = bucket.file('logs.txt');
     const blobStream = blob.createWriteStream();

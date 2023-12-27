@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "turnkey-life-408714",
+  "private_key_id": "f41443d00cfc717ca57b128633bcfb8b44076131",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCep1RUIAUmRG4e\njZ8a4ECbCR+NzXDsf/2HS0GQBctV01TopMGHD0/WlmMR1iDSqu8prAcHnDOvCKgX\nfXu0JrLJSmD6glCS51Z7Cib9j3i3zzQfWGJtw1eUzAVK2KzHJEFeXkx3eOUmLURG\nsh/fLI+wPJgJaxrDPSekYePUfDdKYO/SdEku14KoW1RZ6SYE/9F1HAvUTZzoD4Dm\nJj/qeraVx/L3hgrMz0bgpCfA0Lt79wLa9atNmKrMlp53CUVb4MQzsUQQ9HjNzfPs\nmzqxpIyMKZre5ZfL+SKUC7no+/8r4NOOgjuJX/CE6WEnAdaEMK/WUt+iJ9UouH0C\nE3Uy2hd3AgMBAAECggEAEo3uMlJ2V7XcDQ2yBFIirB8ChjJ3GOmVDGwUNFRBJf3r\nqbOPAI0dYLLAzla1Cv47rytzvQObFcbU5b5ip7x430qoEdQIuU190zDqQ3AyhYih\nh2LuS/jy9q9vlQPHHRkT3gX4Oma0oeTcXco6KP8MpOdJPpy8igXOa46ZNwH582Q4\nmY2iHzfmMi4hTmYknD+7PQVY7stqyjqmYrrIbt61BgIcZP5oABCMbEHdkP9ELWzb\nXiAzOjt+hi7b6vDo4qiVsoCDlAnMW9PdrLmeXV3iCu9v333Jx4zCKBPfS0P4MQPE\nveCzFePNqDAwuSlC0/oFSoyinmFWE9WG9EYe0VysAQKBgQDXbOp5yUJTkDM5upEp\nTZHDz3qCy5fI7tmSf/5iyvZMCqMKMDHUFr8mR1tzMnbT951nhTH7W51mYUPpLHu2\nLhm5PxPBwkIIyvUN2ZEH8W4ZNjHTos5XOFBi4D1B3Pj7Fyql9Ovd+IchiFTFHZHs\n0cLqdi1inCp3j8SWvK7NsJDEAQKBgQC8iRGlJlq8Sxk9ucPwJQ5xsMRshZE3zazA\nJJ4p7ErjEBupGLu0xD1vlNC8V9A4fZ5efwMWOHdkfqY5LkSvRk+07dPuztfVRyk1\n8v+sjBDca63V3dyohns3e6AhM0yITFvNyPfhVClWDz1reiYDm6eP4cb1anXtUK/N\nbXRzJ2L7dwKBgHu9/23XUncHlLUrWqi7+ufcLQYmhliQAoApb2k2JoYFciOvDWBD\ndKc7Q+eG7ETTriHBm7VDqcUeR9EPkTxTfMkw11tsB1xfoKXE/I7weoqW28YydY4a\nNeql3eoQUSCB7SiI6FeHo696TR8w3hqHXwwot+c1xxsIhScE2PAj5PQBAoGBALJJ\nFCyORoOEqMvcHVO8VxpfxH+zFw4kKtZQSljuoCp0kxOm1eotIMOhgHp6t+aTs+08\nQpkCsLSRp3KvNDhjTwCTXjSX2TZQYsInlmt+0HsAQJTbhsy+z0o6V8TNk/PX8YB6\nKR4lzikZpEU8bzI+QYgoQ1LUZ8wQ3w5uEQ7MEiglAoGBANMRPNb8V1XMKj5o/mO+\nahWghwNgJJAmFYTIJEJuRHjomJkK31MpKFBEIFap3FCUPN5Fn+d6gyisEWci4s1n\n1w2vUxshAdb8cQmUDD/v8cX6riDYT9jLFps37rR13JeWWeIJpyEszL4j2hiQ4BUR\nwje9mvD6vLrvAk8PC9Jybbqa\n-----END PRIVATE KEY-----\n",
+  "client_email": "ibrahim-badr@turnkey-life-408714.iam.gserviceaccount.com",
+  "client_id": "103410338676447471064",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/ibrahim-badr%40turnkey-life-408714.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

@@ -16,7 +16,7 @@ const storage = new Storage({
     keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS
   });
 
-const serviceAccount = require(process.env.FIREBASE_CREDENTIALS);
+const serviceAccount = require(`./${process.env.FIREBASE_CREDENTIALS}`);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -47,7 +47,7 @@ async function downloadFileFromGoogleCloud(roomId, date, destinationFileName) {
       prefix: prefix,
     };
   
-    const [files] = await storage.bucket(process.env.GOOGLE_APPLICATION_BUCKET).getFiles(options);
+    const [files] = await storage.bucket(`./${process.env.GOOGLE_APPLICATION_BUCKET}`).getFiles(options);
   
     files.forEach(file => {
       if (file.name.startsWith(prefix + 'Rec')) {

@@ -74,6 +74,18 @@ async function downloadFileFromGoogleCloud(roomId, date, destinationFileName) {
     console.log(`${sourceFileName} uploaded to ${destinationFileName}.`);
   }
   
+  async function downloadFileFromFirebase(sourceFileName, destinationFileName) {
+    const options = {
+      destination: destinationFileName,
+    };
+  
+    await bucket.file(sourceFileName).download(options);
+  
+    console.log(
+      `Blob ${sourceFileName} downloaded to ${destinationFileName}.`
+    );
+  }
+  
   
 
 app.get('/generateManagementToken', function(req, res) {
@@ -111,13 +123,13 @@ const Log = mongoose.model("Log", logSchema);
 
 app.post('/generateStreamingLogs', async (req, res) => {
     const dateObj = new Date();
-    const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
     const day = String(dateObj.getDate()).padStart(2, '0');
     const year = dateObj.getFullYear();
     const date = year + month + day;
-
+  
     const logDocument = new Log(req.body);
-    if(req.body.type === 'beam.stopped.success'){
+    if (req.body.type === 'beam.stopped.success'){
       roomId = req.body.data.room_id;
       const questionCount = await QuestionVideoFile.countDocuments({});
       const nextNumber = questionCount + 1;
@@ -125,10 +137,14 @@ app.post('/generateStreamingLogs', async (req, res) => {
       const questionVideoFileDocument = new QuestionVideoFile({ name: fileName, number: nextNumber });
       await questionVideoFileDocument.save();
       const destinationFileName = path.join(__dirname, 'interview_version', 'videos', fileName);
-      const logFileName = path.join(__dirname, 'interview_version', 'logs', `${fileName}.log`);
+      const logFileName = path.join(__dirname, 'interview_version', 'logs', 'logs.log');
+      const firebaseLogFileName = path.join('interview_version', 'logs', 'logs.log');
+      const exists = await bucket.file(firebaseLogFileName).exists();
+      if (exists[0]) {
+        await downloadFileFromFirebase(firebaseLogFileName, logFileName).catch(console.error);
+      }
+      fs.appendFileSync(logFileName, JSON.stringify(req.body) + "\n##########...\n");
       await downloadFileFromGoogleCloud(roomId, date, destinationFileName).catch(console.error);
-      fs.appendFileSync(logFileName, JSON.stringify(req.body) + "\n################################################\n");
-      const firebaseLogFileName = path.join('interview_version', 'logs', `${fileName}.log`);
       const firebaseVideoFileName = path.join('interview_version', 'videos', fileName);
       await uploadFileToFirebase(logFileName, firebaseLogFileName).catch(console.error);
       await uploadFileToFirebase(destinationFileName, firebaseVideoFileName).catch(console.error);
@@ -143,6 +159,7 @@ app.post('/generateStreamingLogs', async (req, res) => {
       res.status(500).send('Failed to save log');
     }
   });
+  
   
 
 const port = process.env.PORT || 4242;

@@ -23,20 +23,12 @@ const databaseURL = "mongodb+srv://ibrahim:KhMDhZJu5xbBhVIV@cluster0.41pcn2k.mon
 
 mongoose.connect(databaseURL, {
   useNewUrlParser: true,
-  useUnifiedTopology: true,
 });
 
 const db = mongoose.connection;
 db.on("error", (error) => console.error(error));
 db.once("open", () => console.log("Connected to database"));
 
-const logsSchema = new mongoose.Schema({
-    logs: {
-        type: Object
-      },
-})
-
-const Logs = mongoose.model("Logs", logsSchema);
 
 app.get('/generateManagementToken', function(req, res) {
     var app_access_key = process.env.APP_ACCESS_KEY;
@@ -67,27 +59,30 @@ app.get('/generateManagementToken', function(req, res) {
     );
 });
 
-app.post('/generateStreamingLogs', async (req, res) => {
-    const data = req.body;
-    await Logs.create({data: "logs"})
-    
-    const logData = JSON.stringify(data);
-    console.log(logData);
-
-    const blob = bucket.file('logs.txt');
-    const blobStream = blob.createWriteStream();
-
-    blobStream.on('error', (err) => {
-        console.error(err);
-        res.status(500).send('Error uploading log file to Firebase');
+const logSchema = new mongoose.Schema({
+    log: String,
+    timestamp: Date
+  });
+  
+  const Log = mongoose.model("Log", logSchema);
+  
+  app.post('/generateStreamingLogs', async (req, res) => {
+    const log = req.body.log;
+  
+    const logDocument = new Log({
+      log: log,
+      timestamp: new Date()
     });
-
-    blobStream.on('finish', () => {
-        res.status(200).send('Received and log file uploaded to Firebase');
-    });
-
-    blobStream.end(logData);
-});
+  
+    try {
+      await logDocument.save();
+      res.status(200).send('Log saved successfully');
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Failed to save log');
+    }
+  });
+  
 
 const port = process.env.PORT || 4242;
 app.listen(port, () => {

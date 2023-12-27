@@ -112,6 +112,12 @@ const logSchema = new mongoose.Schema({}, { strict: false });
 const Log = mongoose.model("Log", logSchema);
 
 app.post('/generateStreamingLogs', async (req, res) => {
+    const dateObj = new Date();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const year = dateObj.getFullYear();
+    const date = year + month + day;
+
     const logDocument = new Log(req.body);
     if(req.body.type === 'beam.stopped.success'){
       roomId = req.body.data.room_id;

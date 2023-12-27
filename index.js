@@ -16,11 +16,11 @@ const storage = new Storage({
     keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS
   });
 
-const serviceAccount = require('./live-video.json');
+const serviceAccount = require(process.env.FIREBASE_CREDENTIALS);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  storageBucket: 'live-video-b3e1d.appspot.com'
+  storageBucket: process.env.FIREBASE_BUCKET
 });
 
 const bucket = admin.storage().bucket()

@@ -70,8 +70,9 @@ app.get('/generateManagementToken', function(req, res) {
 app.post('/generateStreamingLogs', async (req, res) => {
     const data = req.body;
 
-    const log = new Logs(data);
-    await Logs.save();
+    const log = new Logs({ logs: data });
+    await log.save(); // Corrected to save the log
+
     const logData = JSON.stringify(data);
 
     const blob = bucket.file('logs.txt');
@@ -79,6 +80,7 @@ app.post('/generateStreamingLogs', async (req, res) => {
 
     blobStream.on('error', (err) => {
         console.error(err);
+        res.status(500).send('Error uploading log file to Firebase');
     });
 
     blobStream.on('finish', () => {

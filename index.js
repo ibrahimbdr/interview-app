@@ -69,8 +69,7 @@ app.get('/generateManagementToken', function(req, res) {
 
 app.post('/generateStreamingLogs', async (req, res) => {
     const data = req.body;
-    const log = new Logs({ logs: "recieved" });
-    await log.save(); // Corrected to save the log
+    await Logs.create({data: "logs"})
     
     const logData = JSON.stringify(data);
     console.log(logData);

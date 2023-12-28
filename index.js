@@ -174,7 +174,7 @@ app.post('/generateStreamingLogs', async (req, res) => {
     console.log('beam.stopped.success event received');
     roomId = req.body.data.room_id;
     recordingPath = req.body.data.recording_path;
-
+    console.log(recordingPath);
     // console.log(`Room ID: ${roomId}`);
     // const questionCount = await QuestionVideoFile.countDocuments({});
     // console.log(`Question count: ${questionCount}`);
@@ -205,7 +205,7 @@ app.post('/generateStreamingLogs', async (req, res) => {
     // // console.log('Deleted local log file');
     // // fs.unlinkSync(destinationFileName);
     // console.log('Deleted local video file');
-    downloadAndUploadFile(recording_path)
+    downloadAndUploadFile(recordingPath)
   .catch(console.error);
   console.log('file uploaded successfully');
   }

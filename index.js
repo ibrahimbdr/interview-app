@@ -41,26 +41,34 @@ const questionVideoFileSchema = new mongoose.Schema({
 const QuestionVideoFile = mongoose.model("QuestionVideoFile", questionVideoFileSchema);
 
 async function downloadFileFromGoogleCloud(roomId, date, destinationFileName) {
-    const prefix = `interview_app/thirdparty_recording_test/beam/${roomId}/${date}/`;
+  const prefix = `interview_app/thirdparty_recording_test/beam/${roomId}/${date}/`;
+
+  const options = {
+    prefix: prefix,
+  };
+
+  const [files] = await storage.bucket(`./${process.env.GOOGLE_APPLICATION_BUCKET}`).getFiles(options);
   
-    const options = {
-      prefix: prefix,
-    };
-  
-    const [files] = await storage.bucket(`./${process.env.GOOGLE_APPLICATION_BUCKET}`).getFiles(options);
-  
-    files.forEach(file => {
-      if (file.name.startsWith(prefix + 'Rec')) {
-        const options = {
-          destination: destinationFileName,
-        };
-  
-        file.download(options).then(() => {
-          console.log(`Blob ${file.name} downloaded to ${destinationFileName}.`);
-        });
-      }
-    });
+  let found = false;
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    if (file.name.startsWith(prefix + 'Rec')) {
+      console.log(`Found file: ${file.name}`);
+      const options = {
+        destination: destinationFileName,
+      };
+      
+      await file.download(options);
+      console.log(`Blob ${file.name} downloaded to ${destinationFileName}.`);
+      found = true;
+      break;
+    }
   }
+
+  if (!found) {
+    console.log('No file starting with "Rec" was found.');
+  }
+}
 
   async function uploadFileToFirebase(sourceFileName, FirebaseDestinationFileName) {
     await bucket.upload(sourceFileName, {
@@ -145,6 +153,7 @@ app.post('/generateStreamingLogs', async (req, res) => {
     await questionVideoFileDocument.save();
     console.log(`Saved question video file document: ${JSON.stringify(questionVideoFileDocument)}`);
     const destinationFileName = path.join(__dirname, 'interview_version_test', 'videos', fileName);
+    console.log(`File should be saved as ${destinationFileName}`);
     // const logFileName = path.join(__dirname, 'interview_version', 'logs', 'logs.log');
     // const firebaseLogFileName = path.join('interview_version', 'logs', 'logs.log');
     // const exists = await bucket.file(firebaseLogFileName).exists();

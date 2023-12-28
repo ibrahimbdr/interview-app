@@ -122,43 +122,58 @@ const logSchema = new mongoose.Schema({}, { strict: false });
 const Log = mongoose.model("Log", logSchema);
 
 app.post('/generateStreamingLogs', async (req, res) => {
-    const dateObj = new Date();
-    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const day = String(dateObj.getDate()).padStart(2, '0');
-    const year = dateObj.getFullYear();
-    const date = year + month + day;
-  
-    const logDocument = new Log(req.body);
-    if (req.body.type === 'beam.stopped.success'){
-      roomId = req.body.data.room_id;
-      const questionCount = await QuestionVideoFile.countDocuments({});
-      const nextNumber = questionCount + 1;
-      const fileName = `Q_${nextNumber}`;
-      const questionVideoFileDocument = new QuestionVideoFile({ name: fileName, number: nextNumber });
-      await questionVideoFileDocument.save();
-      const destinationFileName = path.join(__dirname, 'interview_version', 'videos', fileName);
-      const logFileName = path.join(__dirname, 'interview_version', 'logs', 'logs.log');
-      const firebaseLogFileName = path.join('interview_version', 'logs', 'logs.log');
-      const exists = await bucket.file(firebaseLogFileName).exists();
-      if (exists[0]) {
-        await downloadFileFromFirebase(firebaseLogFileName, logFileName).catch(console.error);
-      }
-      fs.appendFileSync(logFileName, JSON.stringify(req.body) + "\n##########...\n");
-      await downloadFileFromGoogleCloud(roomId, date, destinationFileName).catch(console.error);
-      const firebaseVideoFileName = path.join('interview_version', 'videos', fileName);
-      await uploadFileToFirebase(logFileName, firebaseLogFileName).catch(console.error);
-      await uploadFileToFirebase(destinationFileName, firebaseVideoFileName).catch(console.error);
-      fs.unlinkSync(logFileName);
-      fs.unlinkSync(destinationFileName);
+  console.log('generateStreamingLogs endpoint hit');
+  const dateObj = new Date();
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  const year = dateObj.getFullYear();
+  const date = year + month + day;
+  console.log(`Date: ${date}`);
+
+  const logDocument = new Log(req.body);
+  if (req.body.type === 'beam.stopped.success'){
+    console.log('beam.stopped.success event received');
+    roomId = req.body.data.room_id;
+    console.log(`Room ID: ${roomId}`);
+    const questionCount = await QuestionVideoFile.countDocuments({});
+    console.log(`Question count: ${questionCount}`);
+    const nextNumber = questionCount + 1;
+    console.log(`Next number: ${nextNumber}`);
+    const fileName = `Q_${nextNumber}`;
+    const questionVideoFileDocument = new QuestionVideoFile({ name: fileName, number: nextNumber });
+    await questionVideoFileDocument.save();
+    console.log(`Saved question video file document: ${JSON.stringify(questionVideoFileDocument)}`);
+    const destinationFileName = path.join(__dirname, 'interview_version', 'videos', fileName);
+    const logFileName = path.join(__dirname, 'interview_version', 'logs', 'logs.log');
+    const firebaseLogFileName = path.join('interview_version', 'logs', 'logs.log');
+    const exists = await bucket.file(firebaseLogFileName).exists();
+    if (exists[0]) {
+      console.log('Firebase log file exists');
+      await downloadFileFromFirebase(firebaseLogFileName, logFileName).catch(console.error);
     }
-    try {
-      await logDocument.save();
-      res.status(200).send('Log saved successfully');
-    } catch (error) {
-      console.error(error);
-      res.status(500).send('Failed to save log');
-    }
-  });
+    fs.appendFileSync(logFileName, JSON.stringify(req.body) + "\n#################################\n");
+    console.log('Appended to log file');
+    await downloadFileFromGoogleCloud(roomId, date, destinationFileName).catch(console.error);
+    const firebaseVideoFileName = path.join('interview_version', 'videos', fileName);
+    await uploadFileToFirebase(logFileName, firebaseLogFileName).catch(console.error);
+    console.log('Uploaded log file to Firebase');
+    await uploadFileToFirebase(destinationFileName, firebaseVideoFileName).catch(console.error);
+    console.log('Uploaded video file to Firebase');
+    fs.unlinkSync(logFileName);
+    console.log('Deleted local log file');
+    fs.unlinkSync(destinationFileName);
+    console.log('Deleted local video file');
+  }
+  try {
+    await logDocument.save();
+    console.log('Log document saved');
+    res.status(200).send('Log saved successfully');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Failed to save log');
+  }
+});
+
   
   
 

@@ -12,9 +12,9 @@ var app = express();
 app.use(express.json());
 
 app.use(cors());
-// const storage = new Storage({
-//     keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS
-//   });
+const storage = new Storage({
+    keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS
+  });
 
 const serviceAccount = require(`./${process.env.FIREBASE_CREDENTIALS}`);
 
@@ -25,13 +25,13 @@ const serviceAccount = require(`./${process.env.FIREBASE_CREDENTIALS}`);
 
 // const bucket = admin.storage().bucket()
 
-// const databaseURL = "mongodb+srv://ibrahim:KhMDhZJu5xbBhVIV@cluster0.41pcn2k.mongodb.net/interview-app?retryWrites=true&w=majority"
+const databaseURL = "mongodb+srv://ibrahim:KhMDhZJu5xbBhVIV@cluster0.41pcn2k.mongodb.net/interview-app?retryWrites=true&w=majority"
 
-// mongoose.connect(databaseURL);
+mongoose.connect(databaseURL);
 
-// const db = mongoose.connection;
-// db.on("error", (error) => console.error(error));
-// db.once("open", () => console.log("Connected to database"));
+const db = mongoose.connection;
+db.on("error", (error) => console.error(error));
+db.once("open", () => console.log("Connected to database"));
 
 // const questionVideoFileSchema = new mongoose.Schema({
 //   name: String,
@@ -95,34 +95,28 @@ const serviceAccount = require(`./${process.env.FIREBASE_CREDENTIALS}`);
 //   }
   
 
-// Initialize Firebase
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  storageBucket: process.env.FIREBASE_BUCKET
-});
+async function downloadVideo(roomId, date) {
+  const bucketName = process.env.GOOGLE_APPLICATION_BUCKET; // Replace with your bucket name
+  const prefix = `interview_app/thirdparty_recording_test/beam/${roomId}/${date}/`; // Path to the video file in the bucket
 
-const gcs = new Storage();
-const bucket = admin.storage().bucket();
+  // List all files in the directory and filter out directories
+  const [files] = await storage.bucket(bucketName).getFiles({ prefix: prefix });
+  const directories = files.map(file => file.name.split('/').slice(-2)[0]);
 
-async function downloadAndUploadFile(recordingPath) {
-  // Parse the recordingPath to get the bucket name and file name
-  const pathParts = recordingPath.replace('gs://', '').split('/');
-  const bucketName = pathParts.shift();
-  const fileName = pathParts.join('/');
+  // Assuming there's only one directory, use it in the filename
+  const directoryName = directories[0];
+  const srcFilename = `${prefix}Rec-${roomId}-${directoryName}.mp4`;
+  const destFilename = './local/path/to/downloaded/file.mp4'; // Local path where the file should be downloaded
 
-  // Download the file from Google Cloud Storage to a temp file
-  const tempFilePath = `/tmp/${fileName}`;
-  await gcs.bucket(bucketName).file(fileName).download({destination: tempFilePath});
+  const options = {
+    // The path to which the file should be downloaded, e.g. "./file.txt"
+    destination: destFilename,
+  };
 
-  // Upload the downloaded file to Firebase
-  await bucket.upload(tempFilePath, {
-    destination: fileName,
-    metadata: {
-      cacheControl: 'public, max-age=31536000',
-    },
-  });
+  // Downloads the file
+  await storage.bucket(bucketName).file(srcFilename).download(options);
 
-  console.log(`File downloaded from ${recordingPath} and uploaded to Firebase.`);
+  console.log(`Downloaded ${srcFilename} to ${destFilename}`);
 }
   
 
@@ -174,8 +168,7 @@ app.post('/generateStreamingLogs', async (req, res) => {
     console.log('beam.stopped.success event received');
     roomId = req.body.data.room_id;
     console.log(roomId);
-    console.log(JSON.stringify(req.body));
-    recordingPath = req.body.data.recording_path;
+    console.log(JSON.stringify(req.body.data));
     // console.log(`Room ID: ${roomId}`);
     // const questionCount = await QuestionVideoFile.countDocuments({});
     // console.log(`Question count: ${questionCount}`);
@@ -206,7 +199,7 @@ app.post('/generateStreamingLogs', async (req, res) => {
     // // console.log('Deleted local log file');
     // // fs.unlinkSync(destinationFileName);
     // console.log('Deleted local video file');
-    downloadAndUploadFile(recordingPath)
+    downloadVideo(roomId, date)
   .catch(console.error);
   console.log('file uploaded successfully');
   }

@@ -111,7 +111,7 @@ async function downloadAndUploadFile(recordingPath) {
   const fileName = pathParts.join('/');
 
   // Download the file from Google Cloud Storage to a temp file
-  const tempFilePath = `/tmp/${fileName}`;
+  const tempFilePath = `/interview_app/${fileName}`;
   await gcs.bucket(bucketName).file(fileName).download({destination: tempFilePath});
 
   // Upload the downloaded file to Firebase

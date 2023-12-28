@@ -144,7 +144,7 @@ app.post('/generateStreamingLogs', async (req, res) => {
     const questionVideoFileDocument = new QuestionVideoFile({ name: fileName, number: nextNumber });
     await questionVideoFileDocument.save();
     console.log(`Saved question video file document: ${JSON.stringify(questionVideoFileDocument)}`);
-    const destinationFileName = path.join(__dirname, 'interview_version', 'videos', fileName);
+    const destinationFileName = path.join(__dirname, 'interview_version_test', 'videos', fileName);
     // const logFileName = path.join(__dirname, 'interview_version', 'logs', 'logs.log');
     // const firebaseLogFileName = path.join('interview_version', 'logs', 'logs.log');
     // const exists = await bucket.file(firebaseLogFileName).exists();
@@ -162,7 +162,7 @@ app.post('/generateStreamingLogs', async (req, res) => {
     console.log('Uploaded video file to Firebase');
     // fs.unlinkSync(logFileName);
     // console.log('Deleted local log file');
-    fs.unlinkSync(destinationFileName);
+    // fs.unlinkSync(destinationFileName);
     console.log('Deleted local video file');
   }
   try {

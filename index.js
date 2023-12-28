@@ -173,8 +173,9 @@ app.post('/generateStreamingLogs', async (req, res) => {
     console.log('getting recording ...')
     console.log('beam.stopped.success event received');
     roomId = req.body.data.room_id;
+    console.log(roomId);
+    console.log(JSON.stringify(req.body));
     recordingPath = req.body.data.recording_path;
-    console.log(recordingPath);
     // console.log(`Room ID: ${roomId}`);
     // const questionCount = await QuestionVideoFile.countDocuments({});
     // console.log(`Question count: ${questionCount}`);

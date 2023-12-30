@@ -139,7 +139,7 @@ app.post("/generateStreamingLogs", async (req, res) => {
     console.log("getting recording ...");
     console.log("beam.recording.success event received");
     recordingPath = req.body.data.recording_path;
-    // recordingPath = 'gs://interview_app/thirdparty_recording_test/beam/65904291de81f43d15652480/20231230/Rec-65904291de81f43d15652480-1703953066501.mp4'
+    // recordingPath = 'gs://interview_app/thirdparty_recording_test/beam/659051b12592e5f94b75e9f3/20231230/Rec-659051b12592e5f94b75e9f3-1703956930584.mp4'
     console.log(recordingPath);
     const lastLog = await Log.findOne().sort({ created_at: -1 });
     let next_number = 1;
@@ -162,12 +162,12 @@ app.post("/generateStreamingLogs", async (req, res) => {
     console.log(dynamicPart3);
 
     const extraFilePaths = [
-      `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/ChromeLog-${dynamicPart1}-${dynamicPart2}-0.log`,
-      `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/Debug-${dynamicPart1}-${dynamicPart2}.zip`,
-      `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/FFmpegLog-${dynamicPart1}-${dynamicPart2}.log`,
-      `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/Misc-FFmpegLog-makeMp4Faststart-${dynamicPart1}-${dynamicPart2}.log`,
-      `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/Speaker-Labels-${dynamicPart1}-${dynamicPart2}.csv`,
-      `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/pauseEventsLog.json`
+      `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/${dynamicPart2}/ChromeLog-${dynamicPart1}-${dynamicPart2}-0.log`,
+      `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/${dynamicPart2}/Debug-${dynamicPart1}-${dynamicPart2}.zip`,
+      `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/${dynamicPart2}/FFmpegLog-${dynamicPart1}-${dynamicPart2}.log`,
+      `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/${dynamicPart2}/Misc-FFmpegLog-makeMp4Faststart-${dynamicPart1}-${dynamicPart2}.log`,
+      `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/${dynamicPart2}/Speaker-Labels-${dynamicPart1}-${dynamicPart2}.csv`,
+      `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/${dynamicPart2}/pauseEventsLog.json`
     ];
 
     console.log(gcsBucketName);

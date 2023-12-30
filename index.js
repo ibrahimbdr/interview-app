@@ -92,8 +92,7 @@ async function deleteMultipleGCSFiles(gcsBucketName, fileNames) {
       );
       continue;
     }
-    // console.log(fileName);
-    // if(fileName === 'ChromeLog-65904291de81f43d15652480-1703953066501-0.log') await gcs.bucket(gcsBucketName).file(`thirdparty_recording_test/beam/65904291de81f43d15652480/20231230/1703953066501/${fileName}`).delete();
+    
   }
 }
 
@@ -131,7 +130,7 @@ const Log = mongoose.model("Log", logSchema);
 
 app.post("/generateStreamingLogs", async (req, res) => {
   console.log("generateStreamingLogs endpoint hit");
-
+  console.log(JSON.stringify(req.body));
   const logDocument = new Log(req.body);
   // const logDocument = new Log({'interviw': 'test', 'fileName': ''});
   // if (true){
@@ -141,54 +140,69 @@ app.post("/generateStreamingLogs", async (req, res) => {
     recordingPath = req.body.data.recording_path;
     // recordingPath = 'gs://interview_app/thirdparty_recording_test/beam/659051b12592e5f94b75e9f3/20231230/Rec-659051b12592e5f94b75e9f3-1703956930584.mp4'
     console.log(recordingPath);
-    const lastLog = await Log.findOne().sort({ created_at: -1 });
-    let next_number = 1;
-    if (lastLog) {
-      next_number = isNaN(lastLog.number) ? 0 : lastLog.number + 1;
-    }
+  //   const lastLog = await Log.findOne().sort({ created_at: -1 });
+  //   let next_number = 1;
+  //   if (lastLog) {
+  //     next_number = isNaN(lastLog.number) ? 0 : lastLog.number + 1;
+  //   }
 
-    const distinationFileName = `Q_${next_number}.mp4`;
-    logDocument.fileName = distinationFileName;
+  //   const distinationFileName = `Q_${next_number}.mp4`;
+  //   logDocument.fileName = distinationFileName;
 
-    const pathParts = recordingPath.replace("gs://", "").split("/");
-    const gcsBucketName = pathParts.shift();
-    const fileName = pathParts.join("/");
+  //   const pathParts = recordingPath.replace("gs://", "").split("/");
+  //   const gcsBucketName = pathParts.shift();
+  //   const fileName = pathParts.join("/");
 
-    const pathPartsExtra = recordingPath.split("/");
+  //   const pathPartsExtra = recordingPath.split("/");
 
-    const dynamicPart1 = pathPartsExtra[5];
-    const dynamicPart2 = pathPartsExtra[7].split("-")[2].split(".")[0];
-    const dynamicPart3 = pathPartsExtra[6];
-    console.log(dynamicPart3);
+  //   const dynamicPart1 = pathPartsExtra[5];
+  //   const dynamicPart2 = pathPartsExtra[7].split("-")[2].split(".")[0];
+  //   const dynamicPart3 = pathPartsExtra[6];
+  //   console.log(dynamicPart3);
 
-    const extraFilePaths = [
-      `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/${dynamicPart2}/ChromeLog-${dynamicPart1}-${dynamicPart2}-0.log`,
-      `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/${dynamicPart2}/Debug-${dynamicPart1}-${dynamicPart2}.zip`,
-      `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/${dynamicPart2}/FFmpegLog-${dynamicPart1}-${dynamicPart2}.log`,
-      `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/${dynamicPart2}/Misc-FFmpegLog-makeMp4Faststart-${dynamicPart1}-${dynamicPart2}.log`,
-      `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/${dynamicPart2}/Speaker-Labels-${dynamicPart1}-${dynamicPart2}.csv`,
-      `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/${dynamicPart2}/pauseEventsLog.json`
-    ];
+  //   const extraFilePaths = [
+  //     `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/${dynamicPart2}/ChromeLog-${dynamicPart1}-${dynamicPart2}-0.log`,
+  //     `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/${dynamicPart2}/Debug-${dynamicPart1}-${dynamicPart2}.zip`,
+  //     `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/${dynamicPart2}/FFmpegLog-${dynamicPart1}-${dynamicPart2}.log`,
+  //     `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/${dynamicPart2}/Misc-FFmpegLog-makeMp4Faststart-${dynamicPart1}-${dynamicPart2}.log`,
+  //     `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/${dynamicPart2}/Speaker-Labels-${dynamicPart1}-${dynamicPart2}.csv`,
+  //     `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/${dynamicPart2}/pauseEventsLog.json`
+  //   ];
 
-    console.log(gcsBucketName);
+  //   console.log(gcsBucketName);
 
-    downloadAndUploadFile(gcsBucketName, fileName, distinationFileName)
-      .then(() => {
-        deleteGCSFile(gcsBucketName, fileName);
-      })
-      .then(() => {
-        deleteFile(distinationFileName);
-      })
-      .then(() => {
-        deleteMultipleGCSFiles(gcsBucketName, extraFilePaths);
-      })
-      .catch(console.error);
+  //   downloadAndUploadFile(gcsBucketName, fileName, distinationFileName)
+  //     .then(() => {
+  //       deleteGCSFile(gcsBucketName, fileName);
+  //     })
+  //     .then(() => {
+  //       deleteFile(distinationFileName);
+  //     })
+  //     .then(() => {
+  //       deleteMultipleGCSFiles(gcsBucketName, extraFilePaths);
+  //     })
+  //     .catch(console.error);
   }
   try {
     await logDocument.save();
     console.log("Log document saved");
 
-    fs.appendFile("logs.txt", JSON.stringify(req.body) + "\n", function (err) {
+    fs.appendFile("logs.txt", JSON.stringify(req.body.account_id) + "\n", function (err) {
+      if (err) throw err;
+      console.log("Saved log to local text file");
+    });
+
+    fs.appendFile("logs.txt", JSON.stringify(req.body.app_id) + "\n", function (err) {
+      if (err) throw err;
+      console.log("Saved log to local text file");
+    });
+
+    fs.appendFile("logs.txt", JSON.stringify(req.body.type) + "\n", function (err) {
+      if (err) throw err;
+      console.log("Saved log to local text file");
+    });
+
+    fs.appendFile("logs.txt", JSON.stringify(req.body.type) + "\n", function (err) {
       if (err) throw err;
       console.log("Saved log to local text file");
     });

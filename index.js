@@ -76,6 +76,18 @@ function deleteFile(distinationFileName) {
       }
   });
 }
+
+async function deleteMultipleGCSFiles(gcsBucketName, fileNames) {
+  for (const fileName of fileNames) {
+    try {
+      await gcs.bucket(gcsBucketName).file(fileName).delete();
+      console.log(`File ${fileName} deleted from ${gcsBucketName}.`);
+    } catch (error) {
+      console.log(`Failed to delete file ${fileName} from ${gcsBucketName}, skipping.`, error);
+      continue
+    }
+  }
+}
   
 
 app.get('/generateManagementToken', function(req, res) {
@@ -120,16 +132,15 @@ app.post('/generateStreamingLogs', async (req, res) => {
     console.log('getting recording ...')
     console.log('beam.recording.success event received');
     recordingPath = req.body.data.recording_path;
+    roomId = req.body.data.room_id;
     // recordingPath = 'gs://interview_app/thirdparty_recording_test/beam/6590328e2592e5f94b75e596/20231230/Rec-6590328e2592e5f94b75e596-1703948958422.mp4'
     console.log(recordingPath);
-    // Check if the database has previous records
     const lastLog = await Log.findOne().sort({created_at: -1});
     let next_number = 1;
     if (lastLog) {
       next_number = isNaN(lastLog.number) ? 0 : lastLog.number + 1;
     }
 
-    // Make the new file name as Q_${next_number}
     const distinationFileName = `Q_${next_number}.mp4`;
     logDocument.fileName = distinationFileName;
 
@@ -137,11 +148,26 @@ app.post('/generateStreamingLogs', async (req, res) => {
     const gcsBucketName = pathParts.shift();
     const fileName = pathParts.join('/');
 
+    const pathPartsExtra = recordingPath.split('/');
+
+    const dynamicPart1 = pathPartsExtra[4];
+    const dynamicPart2 = pathPartsExtra[6].split('-')[1];
+
+    const extraFilePaths = [
+      `ChromeLog-${dynamicPart1}-${dynamicPart2}-0.log`,
+      `Debug-${dynamicPart1}-${dynamicPart2}.zip`,
+      `FFmpegLog-${dynamicPart1}-${dynamicPart2}-0.log`,
+      `Misc-FFmpegLog-makeMp4Faststart-${dynamicPart1}-${dynamicPart2}-0.log`,
+      'pauseEventsLog.json'
+    ];
+
     downloadAndUploadFile(gcsBucketName, fileName, distinationFileName)
     .then(() => {
-      deleteGCSFile(gcsBucketName, fileName)
+      deleteGCSFile(gcsBucketName, fileName, roomId, UrlFileId)
     }).then(() => {
       deleteFile(distinationFileName)
+    }).then(() => {
+      deleteMultipleGCSFiles(gcsBucketName, extraFilePaths)
     })
       .catch(console.error);
   }
@@ -174,3 +200,7 @@ const port = process.env.PORT || 4242;
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}/`);
 });
+
+
+// const gcsExtraFiles = ['ChromeLog', 'Debug', 'FFmpegLog', 'Misc-FFmpegLog-makeMp4Faststart']
+// const gcsPauseEventsLogFile = 'pauseEventsLog.json'

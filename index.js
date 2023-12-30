@@ -115,11 +115,13 @@ app.post('/generateStreamingLogs', async (req, res) => {
 
   const logDocument = new Log(req.body);
   // const logDocument = new Log({'interviw': 'test', 'fileName': ''});
-  if (req.body?.type === 'beam.recording.success' || true){
+  // if (req.body?.type === 'beam.recording.success' || true){
+    if (req.body?.type === 'beam.recording.success'){
     console.log('getting recording ...')
     console.log('beam.recording.success event received');
     recordingPath = req.body.data.recording_path;
-    // recordingPath = 'gs://interview_app/thirdparty_recording_test/beam/658db989de81f43d1564b602/20231228/Rec-658db989de81f43d1564b602-1703786959947.mp4'
+    // recordingPath = 'gs://interview_app/thirdparty_recording_test/beam/6590328e2592e5f94b75e596/20231230/Rec-6590328e2592e5f94b75e596-1703948958422.mp4'
+    console.log(recordingPath);
     // Check if the database has previous records
     const lastLog = await Log.findOne().sort({created_at: -1});
     let next_number = 1;

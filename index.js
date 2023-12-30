@@ -12,18 +12,6 @@ var app = express();
 app.use(express.json());
 
 app.use(cors());
-// const storage = new Storage({
-//     keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS
-//   });
-
-const serviceAccount = require(`./${process.env.FIREBASE_CREDENTIALS}`);
-
-// admin.initializeApp({
-//   credential: admin.credential.cert(serviceAccount),
-//   storageBucket: process.env.FIREBASE_BUCKET
-// });
-
-// const bucket = admin.storage().bucket()
 
 const databaseURL = "mongodb+srv://ibrahim:KhMDhZJu5xbBhVIV@cluster0.41pcn2k.mongodb.net/interview-app?retryWrites=true&w=majority"
 
@@ -33,96 +21,60 @@ const db = mongoose.connection;
 db.on("error", (error) => console.error(error));
 db.once("open", () => console.log("Connected to database"));
 
-// const questionVideoFileSchema = new mongoose.Schema({
-//   name: String,
-//   number: Number
-// }, { strict: false });
 
-// const QuestionVideoFile = mongoose.model("QuestionVideoFile", questionVideoFileSchema);
+const serviceAccount = require(`./${process.env.FIREBASE_CREDENTIALS}`);
 
-// async function downloadFileFromGoogleCloud(roomId, date, destinationFileName) {
-//   const prefix = `interview_app/thirdparty_recording_test/beam/${roomId}/${date}/`;
-
-//   const options = {
-//     prefix: prefix,
-//   };
-
-//   const [files] = await storage.bucket(`./${process.env.GOOGLE_APPLICATION_BUCKET}`).getFiles(options);
-  
-//   let found = false;
-//   for (let i = 0; i < files.length; i++) {
-//     const file = files[i];
-//     if (file.name.startsWith(prefix + 'Rec')) {
-//       console.log(`Found file: ${file.name}`);
-//       const options = {
-//         destination: destinationFileName,
-//       };
-      
-//       await file.download(options);
-//       console.log(`Blob ${file.name} downloaded to ${destinationFileName}.`);
-//       found = true;
-//       break;
-//     }
-//   }
-
-//   if (!found) {
-//     console.log('No file starting with "Rec" was found.');
-//   }
-// }
-
-//   async function uploadFileToFirebase(sourceFileName, FirebaseDestinationFileName) {
-//     await bucket.upload(sourceFileName, {
-//       destination: FirebaseDestinationFileName,
-//       gzip: true,
-//       metadata: {
-//         cacheControl: 'public, max-age=31536000',
-//       },
-//     });
-  
-//     console.log(`${sourceFileName} uploaded to ${destinationFileName}.`);
-//   }
-  
-//   async function downloadFileFromFirebase(sourceFileName, destinationFileName) {
-//     const options = {
-//       destination: destinationFileName,
-//     };
-  
-//     await bucket.file(sourceFileName).download(options);
-  
-//     console.log(
-//       `Blob ${sourceFileName} downloaded to ${destinationFileName}.`
-//     );
-//   }
-  
-
-// Initialize Firebase
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   storageBucket: process.env.FIREBASE_BUCKET
 });
 
-const gcs = new Storage();
 const bucket = admin.storage().bucket();
+const gcs = new Storage();
 
-async function downloadAndUploadFile(recordingPath) {
-  // Parse the recordingPath to get the bucket name and file name
-  const pathParts = recordingPath.replace('gs://', '').split('/');
-  const bucketName = pathParts.shift();
-  const fileName = pathParts.join('/');
+async function downloadAndUploadFile(gcsBucketName, fileName, distinationFileName) {
 
-  // Download the file from Google Cloud Storage to a temp file
-  const tempFilePath = `/opt/render/project/src/${fileName}`;
-  await gcs.bucket(bucketName).file(fileName).download({destination: tempFilePath});
+  const options = {
+    // The path to which the file should be downloaded
+    destination: distinationFileName,
+  };
 
-  // Upload the downloaded file to Firebase
-  await bucket.upload(tempFilePath, {
-    destination: fileName,
-    metadata: {
-      cacheControl: 'public, max-age=31536000',
-    },
+  // Download the file
+  await gcs
+    .bucket(gcsBucketName)
+    .file(fileName)
+    .download(options);
+
+  console.log(
+    `gs://${gcsBucketName}/${fileName} downloaded to ./${distinationFileName}.`
+  );
+
+  // Upload the file to Firebase Storage
+  await bucket.upload(`./${distinationFileName}`, {
+    destination: `${distinationFileName}`,
+    public: true,
   });
 
-  console.log(`File downloaded from ${recordingPath} and uploaded to Firebase.`);
+  console.log('File uploaded to Firebase Storage as interview_video_test.mp4.');
+}
+
+async function deleteGCSFile(gcsBucketName, distinationFileName) {
+  try {
+      await gcs.bucket(gcsBucketName).file(distinationFileName).delete();
+      console.log(`File ${distinationFileName} deleted from ${gcsBucketName}.`);
+  } catch (error) {
+      console.error(`Failed to delete file ${distinationFileName} from ${gcsBucketName}.`, error);
+  }
+}
+
+function deleteFile(distinationFileName) {
+  fs.unlink(`./${distinationFileName}`, (err) => {
+      if (err) {
+          console.error(`Error: ${err}`);
+      } else {
+          console.log(`File ./${distinationFileName} has been deleted.`);
+      }
+  });
 }
   
 
@@ -156,63 +108,57 @@ app.get('/generateManagementToken', function(req, res) {
 });
 
 const logSchema = new mongoose.Schema({}, { strict: false });
-
 const Log = mongoose.model("Log", logSchema);
 
 app.post('/generateStreamingLogs', async (req, res) => {
   console.log('generateStreamingLogs endpoint hit');
-  const dateObj = new Date();
-  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-  const day = String(dateObj.getDate()).padStart(2, '0');
-  const year = dateObj.getFullYear();
-  const date = year + month + day;
-  console.log(`Date: ${date}`);
 
   const logDocument = new Log(req.body);
-  if (req.body.type === 'beam.recording.success'){
+  // const logDocument = new Log({'interviw': 'test', 'fileName': ''});
+  if (req.body?.type === 'beam.recording.success' || true){
     console.log('getting recording ...')
     console.log('beam.recording.success event received');
-    roomId = req.body.data.room_id;
-    console.log(roomId);
-    console.log(JSON.stringify(req.body));
     recordingPath = req.body.data.recording_path;
-    // console.log(`Room ID: ${roomId}`);
-    // const questionCount = await QuestionVideoFile.countDocuments({});
-    // console.log(`Question count: ${questionCount}`);
-    // const nextNumber = questionCount + 1;
-    // console.log(`Next number: ${nextNumber}`);
-    // const fileName = `Q_${nextNumber}`;
-    // const questionVideoFileDocument = new QuestionVideoFile({ name: fileName, number: nextNumber });
-    // await questionVideoFileDocument.save();
-    // console.log(`Saved question video file document: ${JSON.stringify(questionVideoFileDocument)}`);
-    // const destinationFileName = path.join(__dirname, 'interview_version_test', 'videos', fileName);
-    // console.log(`File should be saved as ${destinationFileName}`);
-    // // const logFileName = path.join(__dirname, 'interview_version', 'logs', 'logs.log');
-    // // const firebaseLogFileName = path.join('interview_version', 'logs', 'logs.log');
-    // // const exists = await bucket.file(firebaseLogFileName).exists();
-    // // if (exists[0]) {
-    // //   console.log('Firebase log file exists');
-    // //   await downloadFileFromFirebase(firebaseLogFileName, logFileName).catch(console.error);
-    // // }
-    // // fs.appendFileSync(logFileName, JSON.stringify(req.body) + "\n#################################\n");
-    // // console.log('Appended to log file');
-    // await downloadFileFromGoogleCloud(roomId, date, destinationFileName).catch(console.error);
-    // const firebaseVideoFileName = path.join('interview_version', 'videos', fileName);
-    // // await uploadFileToFirebase(logFileName, firebaseLogFileName).catch(console.error);
-    // // console.log('Uploaded log file to Firebase');
-    // await uploadFileToFirebase(destinationFileName, firebaseVideoFileName).catch(console.error);
-    // console.log('Uploaded video file to Firebase');
-    // // fs.unlinkSync(logFileName);
-    // // console.log('Deleted local log file');
-    // // fs.unlinkSync(destinationFileName);
-    // console.log('Deleted local video file');
-    downloadAndUploadFile(recordingPath)
-  .catch(console.error);
-  console.log('file uploaded successfully');
+    // recordingPath = 'gs://interview_app/thirdparty_recording_test/beam/658db989de81f43d1564b602/20231228/Rec-658db989de81f43d1564b602-1703786959947.mp4'
+    // Check if the database has previous records
+    const lastLog = await Log.findOne().sort({created_at: -1});
+    let next_number = 1;
+    if (lastLog) {
+      next_number = isNaN(lastLog.number) ? 0 : lastLog.number + 1;
+    }
+
+    // Make the new file name as Q_${next_number}
+    const distinationFileName = `Q_${next_number}.mp4`;
+    logDocument.fileName = distinationFileName;
+
+    const pathParts = recordingPath.replace('gs://', '').split('/');
+    const gcsBucketName = pathParts.shift();
+    const fileName = pathParts.join('/');
+
+    downloadAndUploadFile(gcsBucketName, fileName, distinationFileName)
+    .then(() => {
+      deleteGCSFile(gcsBucketName, fileName)
+    }).then(() => {
+      deleteFile(distinationFileName)
+    })
+      .catch(console.error);
   }
   try {
     await logDocument.save();
     console.log('Log document saved');
+
+    // Save the logs on local text file
+    fs.appendFile('logs.txt', JSON.stringify(req.body) + '\n', function (err) {
+      if (err) throw err;
+      console.log('Saved log to local text file');
+    });
+
+    // Separate the logs with the specified text
+    fs.appendFile('logs.txt', '#############################################\n', function (err) {
+      if (err) throw err;
+      console.log('Added separator to local text file');
+    });
+
     res.status(200).send('Log saved successfully');
   } catch (error) {
     console.error(error);
@@ -220,8 +166,7 @@ app.post('/generateStreamingLogs', async (req, res) => {
   }
 });
 
-  
-  
+
 
 const port = process.env.PORT || 4242;
 app.listen(port, () => {

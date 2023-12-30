@@ -92,6 +92,8 @@ async function deleteMultipleGCSFiles(gcsBucketName, fileNames) {
       );
       continue;
     }
+    // console.log(fileName);
+    // if(fileName === 'ChromeLog-65904291de81f43d15652480-1703953066501-0.log') await gcs.bucket(gcsBucketName).file(`thirdparty_recording_test/beam/65904291de81f43d15652480/20231230/1703953066501/${fileName}`).delete();
   }
 }
 
@@ -155,16 +157,20 @@ app.post("/generateStreamingLogs", async (req, res) => {
     const pathPartsExtra = recordingPath.split("/");
 
     const dynamicPart1 = pathPartsExtra[5];
-    const dynamicPart2 = pathPartsExtra[7].split("-")[1];
+    const dynamicPart2 = pathPartsExtra[7].split("-")[2].split(".")[0];
+    const dynamicPart3 = pathPartsExtra[6];
+    console.log(dynamicPart3);
 
     const extraFilePaths = [
-      `ChromeLog-${dynamicPart1}-${dynamicPart2}-0.log`,
-      `Debug-${dynamicPart1}-${dynamicPart2}.zip`,
-      `FFmpegLog-${dynamicPart1}-${dynamicPart2}.log`,
-      `Misc-FFmpegLog-makeMp4Faststart-${dynamicPart1}-${dynamicPart2}.log`,
-      `Speaker-Labels-${dynamicPart1}-${dynamicPart2}.csv`,
-      "pauseEventsLog.json",
+      `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/ChromeLog-${dynamicPart1}-${dynamicPart2}-0.log`,
+      `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/Debug-${dynamicPart1}-${dynamicPart2}.zip`,
+      `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/FFmpegLog-${dynamicPart1}-${dynamicPart2}.log`,
+      `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/Misc-FFmpegLog-makeMp4Faststart-${dynamicPart1}-${dynamicPart2}.log`,
+      `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/Speaker-Labels-${dynamicPart1}-${dynamicPart2}.csv`,
+      `thirdparty_recording_test/beam/${dynamicPart1}/${dynamicPart3}/pauseEventsLog.json`
     ];
+
+    console.log(gcsBucketName);
 
     downloadAndUploadFile(gcsBucketName, fileName, distinationFileName)
       .then(() => {

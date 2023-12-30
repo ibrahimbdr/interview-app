@@ -160,8 +160,9 @@ app.post("/generateStreamingLogs", async (req, res) => {
     const extraFilePaths = [
       `ChromeLog-${dynamicPart1}-${dynamicPart2}-0.log`,
       `Debug-${dynamicPart1}-${dynamicPart2}.zip`,
-      `FFmpegLog-${dynamicPart1}-${dynamicPart2}-0.log`,
-      `Misc-FFmpegLog-makeMp4Faststart-${dynamicPart1}-${dynamicPart2}-0.log`,
+      `FFmpegLog-${dynamicPart1}-${dynamicPart2}.log`,
+      `Misc-FFmpegLog-makeMp4Faststart-${dynamicPart1}-${dynamicPart2}.log`,
+      `Speaker-Labels-${dynamicPart1}-${dynamicPart2}.csv`,
       "pauseEventsLog.json",
     ];
 

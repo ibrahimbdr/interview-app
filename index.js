@@ -131,15 +131,15 @@ const Log = mongoose.model("Log", logSchema);
 app.post("/generateStreamingLogs", async (req, res) => {
   console.log("generateStreamingLogs endpoint hit");
   console.log(JSON.stringify(req.body));
-  const logDocument = new Log(req.body);
+  // const logDocument = new Log(req.body);
   // const logDocument = new Log({'interviw': 'test', 'fileName': ''});
   // if (true){
-  if (req.body?.type === "beam.recording.success") {
-    console.log("getting recording ...");
-    console.log("beam.recording.success event received");
-    recordingPath = req.body.data.recording_path;
-    // recordingPath = 'gs://interview_app/thirdparty_recording_test/beam/659051b12592e5f94b75e9f3/20231230/Rec-659051b12592e5f94b75e9f3-1703956930584.mp4'
-    console.log(recordingPath);
+  // // if (req.body?.type === "beam.recording.success") {
+  //   console.log("getting recording ...");
+  //   console.log("beam.recording.success event received");
+  //   // recordingPath = req.body.data.recording_path;
+  //   recordingPath = 'gs://gcp-asia-south1-prod-in2-recording/6582ed1ccd993dfb44aa4b27/6582ed1ccd993dfb44aa4b28/6582ed641c1a67a16a9cabfb/room-composite/20231230/659073457fec6bebe5aa20ac/Rec-659073292592e5f94b75ec34-1703965509716.mp4'
+  //   console.log(recordingPath);
   //   const lastLog = await Log.findOne().sort({ created_at: -1 });
   //   let next_number = 1;
   //   if (lastLog) {
@@ -171,7 +171,7 @@ app.post("/generateStreamingLogs", async (req, res) => {
 
   //   console.log(gcsBucketName);
 
-  //   downloadAndUploadFile(gcsBucketName, fileName, distinationFileName)
+    // downloadAndUploadFile(gcsBucketName, fileName, distinationFileName)
   //     .then(() => {
   //       deleteGCSFile(gcsBucketName, fileName);
   //     })
@@ -182,45 +182,45 @@ app.post("/generateStreamingLogs", async (req, res) => {
   //       deleteMultipleGCSFiles(gcsBucketName, extraFilePaths);
   //     })
   //     .catch(console.error);
-  }
-  try {
-    await logDocument.save();
-    console.log("Log document saved");
+  // }
+  // try {
+  //   await logDocument.save();
+  //   console.log("Log document saved");
 
-    fs.appendFile("logs.txt", JSON.stringify(req.body.account_id) + "\n", function (err) {
-      if (err) throw err;
-      console.log("Saved log to local text file");
-    });
+  //   fs.appendFile("logs.txt", JSON.stringify(req.body.account_id) + "\n", function (err) {
+  //     if (err) throw err;
+  //     console.log("Saved log to local text file");
+  //   });
 
-    fs.appendFile("logs.txt", JSON.stringify(req.body.app_id) + "\n", function (err) {
-      if (err) throw err;
-      console.log("Saved log to local text file");
-    });
+  //   fs.appendFile("logs.txt", JSON.stringify(req.body.app_id) + "\n", function (err) {
+  //     if (err) throw err;
+  //     console.log("Saved log to local text file");
+  //   });
 
-    fs.appendFile("logs.txt", JSON.stringify(req.body.type) + "\n", function (err) {
-      if (err) throw err;
-      console.log("Saved log to local text file");
-    });
+  //   fs.appendFile("logs.txt", JSON.stringify(req.body.type) + "\n", function (err) {
+  //     if (err) throw err;
+  //     console.log("Saved log to local text file");
+  //   });
 
-    fs.appendFile("logs.txt", JSON.stringify(req.body.type) + "\n", function (err) {
-      if (err) throw err;
-      console.log("Saved log to local text file");
-    });
+  //   fs.appendFile("logs.txt", JSON.stringify(req.body.type) + "\n", function (err) {
+  //     if (err) throw err;
+  //     console.log("Saved log to local text file");
+  //   });
 
-    fs.appendFile(
-      "logs.txt",
-      "#############################################\n",
-      function (err) {
-        if (err) throw err;
-        console.log("Added separator to local text file");
-      }
-    );
+  //   fs.appendFile(
+  //     "logs.txt",
+  //     "#############################################\n",
+  //     function (err) {
+  //       if (err) throw err;
+  //       console.log("Added separator to local text file");
+  //     }
+  //   );
 
-    res.status(200).send("Log saved successfully");
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Failed to save log");
-  }
+  //   res.status(200).send("Log saved successfully");
+  // } catch (error) {
+  //   console.error(error);
+  //   res.status(500).send("Failed to save log");
+  // }
 });
 
 const port = process.env.PORT || 4242;

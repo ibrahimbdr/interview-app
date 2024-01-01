@@ -109,8 +109,10 @@ const PreInterview = () => {
   };
 
   const handleStartInterview = async () => {
-    console.log();
-    const authToken = await hmsActions.getAuthTokenByRoomCode({ roomCode: roomCode.data[2].code })
+    const candidateRoleRoomData = roomCode.data.find(roomRoleData => roomRoleData.role === 'candidate'); 
+    console.log('candidate room data');
+    console.log(candidateRoleRoomData);
+    const authToken = await hmsActions.getAuthTokenByRoomCode({ roomCode: candidateRoleRoomData.code })
 
     try {
       await hmsActions.join({ userName: roomData.name, authToken });
